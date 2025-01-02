@@ -13,4 +13,14 @@ export class UsersRepository extends BaseRepository<User> {
   async findByEmail(email: string): Promise<User | null> {
     return this.userModel.findOne({ email }).exec();
   }
+
+  // Cria um novo usuário
+  async create(data: {
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<User> {
+    const newUser = new this.userModel(data);
+    return newUser.save();
+  }
 }

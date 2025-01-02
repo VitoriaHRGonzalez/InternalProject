@@ -21,6 +21,9 @@ import { UsersService } from '../services/users.service';
 })
 export class UsersModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).exclude('users/login').forRoutes('users'); //Aplicar a somente para users?
+    consumer
+      .apply(JwtMiddleware)
+      .exclude('users/login', 'users/register')
+      .forRoutes('users'); //Aplicar a somente para users?
   }
 }
