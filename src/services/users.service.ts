@@ -12,12 +12,10 @@ export class UsersService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // Busca todos os usuários
   async findAllUsers(): Promise<User[]> {
     return this.userModel.find().exec();
   }
 
-  // Registro de novo usuário
   async register(data: {
     name: string;
     email: string;
@@ -25,13 +23,11 @@ export class UsersService {
   }): Promise<User> {
     const { name, email, password } = data;
 
-    // Valida se o email já está em uso
     const existingUser = await this.userModel.findOne({ email }).exec();
     if (existingUser) {
       throw new BadRequestException('Email already in use');
     }
 
-    // Validações adicionais (senha forte, nome obrigatório)
     if (!name || !email || !password) {
       throw new BadRequestException('Name, email, and password are required');
     }
@@ -42,16 +38,14 @@ export class UsersService {
       );
     }
 
-    // Criptografa a senha
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Cria e salva o novo usuário
-    const newUser = new this.userModel({
+    const newUser = await this.userModel.create({
       name,
       email,
       password: hashedPassword,
     });
-    return newUser.save();
+    return newUser;
   }
 
   // Autenticação de usuário
@@ -61,21 +55,18 @@ export class UsersService {
   ): Promise<{ token: string }> {
     console.log('Authenticating user with email:', email);
 
-    // Busca o usuário pelo email
     const user = await this.userModel.findOne({ email }).exec();
     if (!user) {
       console.error('User not found');
       throw new BadRequestException('Invalid email or password');
     }
 
-    // Compara a senha fornecida com o hash armazenado
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       console.error('Invalid password');
       throw new BadRequestException('Invalid email or password');
     }
 
-    // Gera o token JWT
     const payload = { sub: user._id, email: user.email };
     const token = this.jwtService.sign(payload);
     console.log('Authentication successful, token generated:', token);

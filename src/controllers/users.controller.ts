@@ -23,12 +23,10 @@ export class UsersController {
   ) {
     const { name, email, password } = body;
 
-    // Validação de dados
     if (!name || !email || !password) {
       throw new BadRequestException('Name, email, and password are required');
     }
 
-    // Tenta registrar o usuário
     return await this.usersService.register({ name, email, password });
   }
 }

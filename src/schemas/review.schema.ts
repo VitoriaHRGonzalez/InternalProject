@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 
 @Schema()
 export class Review extends Document {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  user: Types.ObjectId;
+  @Prop({ required: true })
+  userId: string;
 
   @Prop({ required: true })
   movieId: string;
@@ -12,8 +12,11 @@ export class Review extends Document {
   @Prop({ required: true })
   comment: string;
 
-  @Prop({ default: Date.now })
-  createdAt: Date;
+  @Prop({ required: true, min: 1, max: 5 })
+  rating: number; // Nota de 1 a 5
+
+  @Prop({ default: 0 })
+  likes: number;
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);

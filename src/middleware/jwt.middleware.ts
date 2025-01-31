@@ -1,5 +1,8 @@
-/* eslint-disable prettier/prettier */
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { NextFunction, Request, Response } from 'express';
 
@@ -20,9 +23,14 @@ export class JwtMiddleware implements NestMiddleware {
 
     try {
       const decoded = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET, // Chave usada para validar o token
+        secret: process.env.JWT_SECRET,
       });
-      req['users'] = decoded; // Salva os dados do token no objeto `req` para uso futuro
+
+      if (!decoded || !decoded.sub) {
+        throw new UnauthorizedException('Invalid token: user ID missing');
+      }
+
+      req['user'] = decoded; // Adiciona os dados do usuário no request, era o que estava faltando.
       next();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {

@@ -1,0 +1,341 @@
+openapi: 3.0.0
+info:
+  title: API do Projeto Interno
+  description: API para documentação do projeto Interno
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/
+    description: Servidor local
+
+paths:
+  /users:
+    get:
+      summary: Retorna a lista de usuários
+      description: Obtém todos os usuários cadastrados no sistema.
+      operationId: getAllUsers
+      tags:
+        - users
+      responses:
+        "200":
+          description: Lista de usuários retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Usuario'
+        "500":
+          description: Erro interno do servidor
+
+  /users/register:
+    post:
+      summary: Cria um novo usuário
+      description: Endpoint para criação de um novo usuário no sistema.
+      operationId: register
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        "201":
+          description: Usuário criado com sucesso
+        "400":
+          description: Requisição inválida
+
+  /users/login:
+    post:
+      summary: Realiza o login do usuário
+      description: Endpoint para logar o usuário no sistema.
+      operationId: login
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "usuario.um@example.com"
+                password:
+                  type: string
+                  example: "SenhaSegura123"
+      responses:
+        "200":
+          description: Usuário logado com sucesso
+        "400":
+          description: Credenciais inválidas
+
+  /favorites:
+    post:
+      summary: Adiciona um novo favorito
+      description: Endpoint para adicionar um filme favorito do usuário.
+      operationId: addFavorite
+      tags:
+        - favorites
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FavoriteRequest"
+      responses:
+        "201":
+          description: Favorito adicionado com sucesso
+        "400":
+          description: Requisição inválida
+        "401":
+          description: Não autorizado (Token JWT inválido ou ausente)
+# Favorites:
+  /favorites/{userId}:
+    get:
+      summary: Retorna a lista de filmes favoritos de um usuário
+      description: Obtém todos os filmes favoritos cadastrados de um usuário específico.
+      operationId: getFavoritesByUser
+      tags:
+        - favorites
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID do usuário para buscar favoritos
+          schema:
+            type: string
+            example: "6776db15be1088e7e20c1c9c"
+      responses:
+        "200":
+          description: Lista de favoritos retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FavoriteResponse"
+        "404":
+          description: Usuário não encontrado
+        "500":
+          description: Erro interno do servidor
+# Reviwes:
+/reviws:
+    post:
+      summary: Adiciona um novo review
+      description: Endpoint para adicionar um review ao filme.
+      operationId: sendReview
+      tags:
+        - reviews
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Review"
+      responses:
+        "201":
+          description: Review adicionado com sucesso
+        "400":
+          description: Requisição inválida
+        "401":
+          description: Não autorizado (Token JWT inválido ou ausente)
+
+  /reviews/{movieId}:
+    get:
+      summary: Retorna os reviews de um filme
+      description: Obtém todos os reviews de um filme específico.
+      operationId: getReviewsByMovie
+      tags:
+        - reviews
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          description: ID do filme para buscar reviews
+          schema:
+            type: string
+            example: "movie456"
+      responses:
+        "200":
+          description: Lista de reviews retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+        "404":
+          description: Filme não encontrado
+        "500":
+          description: Erro interno do servidor
+
+  /reviews/{reviewId}/like:
+    patch:
+      summary: Adiciona um like a uma review
+      description: Incrementa o contador de likes de uma review específica.
+      operationId: likeReview
+      tags:
+        - reviews
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          description: ID da review que receberá o like
+          schema:
+            type: string
+            example: "6772e369ffec2e47c3717b99"
+      responses:
+        "200":
+          description: Like adicionado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviewId:
+                    type: string
+                    example: "6772e369ffec2e47c3717b99"
+                  likes:
+                    type: integer
+                    example: 10
+        "404":
+          description: Review não encontrada
+        "500":
+          description: Erro interno do servidor
+
+  #Scores:
+  /scores:
+    post:
+      summary: Adiciona um novo score
+      description: Endpoint para adição de um novo score no sistema.
+      operationId: sendScore
+      tags:
+        - scores
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Score'
+      responses:
+        "201":
+          description: Score adicionado com sucesso
+        "400":
+          description: Requisição inválida
+
+  /scores/{movieId}:
+    get:
+      summary: Retorna a note dos filmes
+      description: Obtém a nota que um filme recebeu.
+      operationId: getScoreByMovie
+      tags:
+        - scores
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          description: ID do filme para buscar os scores
+          schema:
+            type: string
+            example: "movie456"
+      responses:
+        "200":
+          description: Lista de notas retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Score" #Rever
+        "404":
+          description: Filme não encontrado
+        "500":
+          description: Erro interno do servidor
+
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Usuário 1"
+        email:
+          type: string
+          format: email
+          example: "usuario.um@example.com"
+        password:
+          type: string
+          example: "SenhaSegura123"
+
+    FavoriteRequest:
+      type: object
+      required:
+        - movieId
+        - genre
+      properties:
+        movieId:
+          type: string
+          example: "movie456"
+        genre:
+          type: string
+          example: "Comedy"
+
+    FavoriteResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          example: "6776db15be1088e7e20c1c9c"
+        movieId:
+          type: string
+          example: "movie456"
+        genre:
+          type: string
+          example: "Comedy"
+    
+    Review:
+      type: object
+      required:
+        - movieId
+        - comment
+        - rating
+      properties:
+        movieId:
+          type: string
+          example: "movie456"
+        comment:
+          type: string
+          example: "Very good movie"
+        rating:
+          type: number
+          example: 5
+
+    Score:
+      type: object
+      required:
+        - movieId
+        - score
+      properties:
+        movieId:
+          type: string
+          example: "movie456"
+        score:
+          type: number
+          example: 5

@@ -24,6 +24,6 @@ export class UsersModule implements NestModule {
     consumer
       .apply(JwtMiddleware)
       .exclude('users/login', 'users/register')
-      .forRoutes('users'); //Aplicar a somente para users?
+      .forRoutes('users');
   }
 }

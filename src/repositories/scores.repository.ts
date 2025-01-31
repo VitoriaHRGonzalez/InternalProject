@@ -2,21 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Score } from '../schemas/score.schema';
-import { BaseRepository } from './base.repository';
 
 @Injectable()
-export class ScoresRepository extends BaseRepository<Score> {
+export class ScoresRepository {
   constructor(
     @InjectModel(Score.name) private readonly scoreModel: Model<Score>,
-  ) {
-    super(scoreModel);
+  ) {}
+
+  async create(data: {
+    userId: string;
+    movieId: string;
+    score: number;
+  }): Promise<Score> {
+    const newScore = new this.scoreModel(data);
+    return newScore.save();
+  }
+
+  async findByUserAndMovie(
+    userId: string,
+    movieId: string,
+  ): Promise<Score | null> {
+    return this.scoreModel.findOne({ userId, movieId }).exec();
   }
 
   async findByMovieId(movieId: string): Promise<Score[]> {
     return this.scoreModel.find({ movieId }).exec();
-  }
-
-  async findByUserId(userId: string): Promise<Score[]> {
-    return this.scoreModel.find({ user: userId }).exec();
   }
 }

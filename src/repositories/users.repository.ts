@@ -14,7 +14,6 @@ export class UsersRepository extends BaseRepository<User> {
     return this.userModel.findOne({ email }).exec();
   }
 
-  // Cria um novo usuário
   async create(data: {
     name: string;
     email: string;
